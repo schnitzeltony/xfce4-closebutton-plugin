@@ -1,0 +1,7 @@
+[Xfce Panel]
+Type=X-XFCE-PanelPlugin
+_Name=Close Button
+_Comment=Close active window
+Icon=xfce4-closebutton-plugin
+X-XFCE-Module=closebutton
+X-XFCE-Unique=FALSE
