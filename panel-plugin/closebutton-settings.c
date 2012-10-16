@@ -35,9 +35,11 @@ struct gtk_theme_entry
 };
 
 static const struct gtk_theme_entry gtk_theme_entries[] = {
-  { "window-close",         N_("Standard close icon") },
-  { "process-stop",         N_("Standard cancel icon") },
-  { "application-exit",     N_("Standard exit icon") },
+  { GTK_STOCK_CLOSE,        N_("Standard close icon") },
+  { GTK_STOCK_CANCEL,       N_("Standard cancel icon") },
+  { GTK_STOCK_DIALOG_ERROR, N_("Standard error icon") },
+  { GTK_STOCK_NO,           N_("Standard no icon") },
+  { GTK_STOCK_QUIT,         N_("Standard quit icon") },
 };
 
 
