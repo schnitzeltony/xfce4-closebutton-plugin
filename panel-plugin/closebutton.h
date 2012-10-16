@@ -21,7 +21,9 @@
 
 #include <gtk/gtk.h>
 
-#define PROPERTY_NAME_THEME "theme"
+#define PROP_NAME_THEME                 "theme"
+#define PROP_NAME_COLLAPSE_NO_WINDOW    "collapse-no-window"
+#define PROP_NAME_BLOCK_AUTOHIDE        "block-autohide"
 
 #define plugin_warn(plugin, text, ...) \
     g_warning ( "Panel plugin \"%s\": " text, xfce_panel_plugin_get_display_name (XFCE_PANEL_PLUGIN (plugin)), ##__VA_ARGS__)

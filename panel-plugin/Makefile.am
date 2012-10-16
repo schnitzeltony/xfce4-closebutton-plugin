@@ -35,6 +35,7 @@ libclosebutton_la_LIBADD = \
 	$(GTK_LIBS) \
 	$(GLIB_LIBS) \
 	$(GOBJECT_LIBS) \
+	$(EXO_LIBS) \
 	$(LIBXFCE4UI_LIBS) \
 	$(LIBXFCE4UTIL_LIBS) \
 	$(LIBXFCE4PANEL_LIBS) \

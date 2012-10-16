@@ -178,7 +178,7 @@ closebutton_plugin_combo_changed(GtkComboBox *combo,
       else
           property = selection;
       g_object_set (G_OBJECT (panel_plugin),
-                    PROPERTY_NAME_THEME, property,
+                    PROP_NAME_THEME, property,
                     NULL);
     }
 }
@@ -191,11 +191,13 @@ void
 closebutton_plugin_configure_plugin (XfcePanelPlugin *panel_plugin)
 {
   GtkBuilder        *builder;
-  GObject           *dialog;
+  GObject           *dialog, *widget;
   gint              stockindex, comboposition;
   GtkComboBox       *combo;
   GDir              *themedir;
   gchar             *property, *themename;
+  guint             i;
+  const gchar      *names[] = { PROP_NAME_COLLAPSE_NO_WINDOW, PROP_NAME_BLOCK_AUTOHIDE };
 
   /* setup the dialog */
   if (xfce_titled_dialog_get_type () == 0)
@@ -206,7 +208,7 @@ closebutton_plugin_configure_plugin (XfcePanelPlugin *panel_plugin)
       return;
   /* get current theme */
   g_object_get (G_OBJECT (panel_plugin),
-                PROPERTY_NAME_THEME, &property,
+                PROP_NAME_THEME, &property,
                 NULL);
   /* prepare combo: fill/select/signal */
   combo = GTK_COMBO_BOX (gtk_builder_get_object (builder, "theme"));
@@ -228,8 +230,18 @@ closebutton_plugin_configure_plugin (XfcePanelPlugin *panel_plugin)
                                                   &comboposition, property);
           g_dir_close(themedir);
         }
+      /* data in combo needs further computation see closebutton_plugin_combo_changed */
       g_signal_connect (G_OBJECT (combo), "changed",
           G_CALLBACK (closebutton_plugin_combo_changed), panel_plugin);
     }
+  /* standard widgets/properties exchange data by mutual bindings */
+  for (i = 0; i < G_N_ELEMENTS (names); i++)
+    {
+      widget = gtk_builder_get_object (builder, names[i]);
+      g_return_if_fail (GTK_IS_WIDGET (widget));
+      exo_mutual_binding_new (G_OBJECT (panel_plugin), names[i],
+                              G_OBJECT (widget), "active");
+    }
+
   gtk_widget_show (GTK_WIDGET (dialog));
 }

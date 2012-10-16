@@ -47,6 +47,8 @@ struct _CloseButtonPlugin
 
   /* properties */
   gchar              *theme_or_stock_id;
+  gboolean            collapse_no_window;
+  gboolean            block_autohide;
 
   /* inernal data */
   GdkPixbuf      *pixbuf;
@@ -56,6 +58,8 @@ enum
 {
   PROP_0,
   PROP_THEME,
+  PROP_COLLAPSE_NO_WINDOW,
+  PROP_BLOCK_AUTOHIDE,
 };
 
 #define DEFAULT_THEME "Default"
@@ -107,10 +111,22 @@ closebutton_plugin_class_init (CloseButtonPluginClass *klass)
 
   g_object_class_install_property (gobject_class,
                                    PROP_THEME,
-                                   g_param_spec_string (PROPERTY_NAME_THEME,
+                                   g_param_spec_string (PROP_NAME_THEME,
                                                         NULL, NULL,
                                                         DEFAULT_THEME,
                                                         EXO_PARAM_READWRITE));
+  g_object_class_install_property (gobject_class,
+                                   PROP_COLLAPSE_NO_WINDOW,
+                                   g_param_spec_boolean (PROP_NAME_COLLAPSE_NO_WINDOW,
+                                                         NULL, NULL,
+                                                         FALSE,
+                                                         EXO_PARAM_READWRITE));
+  g_object_class_install_property (gobject_class,
+                                   PROP_BLOCK_AUTOHIDE,
+                                   g_param_spec_boolean (PROP_NAME_BLOCK_AUTOHIDE,
+                                                         NULL, NULL,
+                                                         FALSE,
+                                                         EXO_PARAM_READWRITE));
 }
 
 
@@ -119,6 +135,8 @@ static void
 closebutton_plugin_init (CloseButtonPlugin *plugin)
 {
   plugin->theme_or_stock_id = g_strdup (DEFAULT_THEME);
+  plugin->collapse_no_window = FALSE;
+  plugin->block_autohide = FALSE;
   plugin->pixbuf = NULL;
 
   plugin->button = xfce_panel_create_button ();
@@ -160,11 +178,12 @@ closebutton_plugin_get_effective_window (CloseButtonPlugin *plugin)
 static WnckWindow*
 closebutton_plugin_set_icon (CloseButtonPlugin *plugin, gboolean force_reload)
 {
-  WnckWindow     *window;
-  GtkIconTheme   *icon_theme;
-  XfcePanelImage *icon = XFCE_PANEL_IMAGE (plugin->icon);
-  gchar          *filename;
-  gint            size, stockindex;
+  WnckWindow        *window;
+  GtkIconTheme      *icon_theme;
+  gchar             *filename;
+  gint               size, stockindex;
+  XfcePanelPlugin   *panel_plugin = XFCE_PANEL_PLUGIN (plugin);
+  XfcePanelImage    *icon = XFCE_PANEL_IMAGE (plugin->icon);
 
   g_return_if_fail (XFCE_IS_PANEL_IMAGE (icon));
   g_return_if_fail (XFCE_IS_CLOSEBUTTON_PLUGIN (plugin));
@@ -226,6 +245,12 @@ closebutton_plugin_get_property (GObject    *object,
       g_value_set_string (value, exo_str_is_empty (plugin->theme_or_stock_id) ?
           DEFAULT_THEME : plugin->theme_or_stock_id);
       break;
+    case PROP_COLLAPSE_NO_WINDOW:
+      g_value_set_boolean (value, plugin->collapse_no_window);
+      break;
+    case PROP_BLOCK_AUTOHIDE:
+      g_value_set_boolean (value, plugin->block_autohide);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -241,24 +266,38 @@ closebutton_plugin_set_property (GObject      *object,
                                  GParamSpec   *pspec)
 {
   CloseButtonPlugin *plugin = XFCE_CLOSEBUTTON_PLUGIN (object);
-  XfcePanelPlugin  *panel_plugin = XFCE_PANEL_PLUGIN (object);
-  gchar* oldvalue;
+  XfcePanelPlugin   *panel_plugin = XFCE_PANEL_PLUGIN (object);
+  gchar*             str_old;
+  gboolean           bool_old, needs_redraw, icon_changed;
 
   g_return_if_fail (XFCE_IS_CLOSEBUTTON_PLUGIN (plugin));
+  needs_redraw = FALSE;
+  icon_changed = FALSE;
   switch (prop_id)
     {
     case PROP_THEME:
-      oldvalue = plugin->theme_or_stock_id;
+      str_old = plugin->theme_or_stock_id;
       plugin->theme_or_stock_id = g_value_dup_string (value);
-      closebutton_plugin_set_icon (
-          plugin, g_strcmp0 (oldvalue, 
-          plugin->theme_or_stock_id) != 0);
-      g_free (oldvalue);
+      needs_redraw = icon_changed = 
+          g_strcmp0 (str_old, plugin->theme_or_stock_id) != 0;
+      g_free (str_old);
+      break;
+    case PROP_COLLAPSE_NO_WINDOW:
+      bool_old = plugin->collapse_no_window;
+      plugin->collapse_no_window = g_value_get_boolean (value);
+      needs_redraw = bool_old != plugin->collapse_no_window;
+      break;
+    case PROP_BLOCK_AUTOHIDE:
+      bool_old = plugin->block_autohide;
+      plugin->block_autohide = g_value_get_boolean (value);
+      needs_redraw = bool_old != plugin->block_autohide;
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
     }
+  if(needs_redraw)
+      closebutton_plugin_set_icon (plugin, icon_changed);
 }
 
 
@@ -332,7 +371,7 @@ closebutton_plugin_construct (XfcePanelPlugin *panel_plugin)
 {
   XfconfChannel        *channel;
   gchar                *property;
-  CloseButtonPlugin    *plugin = XFCE_CLOSEBUTTON_PLUGIN (panel_plugin);
+  GObject              *object = G_OBJECT(panel_plugin);
   GError               *error = NULL;
 
   if (G_UNLIKELY (!xfconf_init (&error)))
@@ -341,11 +380,17 @@ closebutton_plugin_construct (XfcePanelPlugin *panel_plugin)
       g_error_free (error);
       return;
     }
-  /* bind theme property to xfconf */
+  /* bind properties to xfconf */
   channel = xfconf_channel_get (XFCE_PANEL_CHANNEL_NAME);
   g_return_if_fail (XFCONF_IS_CHANNEL (channel));
-  property = g_strconcat (xfce_panel_plugin_get_property_base (panel_plugin), "/" PROPERTY_NAME_THEME, NULL);
-  xfconf_g_property_bind (channel, property, G_TYPE_STRING, G_OBJECT (panel_plugin), PROPERTY_NAME_THEME);
+  property = g_strconcat (xfce_panel_plugin_get_property_base (panel_plugin), "/" PROP_NAME_THEME, NULL);
+  xfconf_g_property_bind (channel, property, G_TYPE_STRING, object, PROP_NAME_THEME);
+  g_free (property);
+  property = g_strconcat (xfce_panel_plugin_get_property_base (panel_plugin), "/" PROP_NAME_COLLAPSE_NO_WINDOW, NULL);
+  xfconf_g_property_bind (channel, property, G_TYPE_BOOLEAN, object, PROP_NAME_COLLAPSE_NO_WINDOW);
+  g_free (property);
+  property = g_strconcat (xfce_panel_plugin_get_property_base (panel_plugin), "/" PROP_NAME_BLOCK_AUTOHIDE, NULL);
+  xfconf_g_property_bind (channel, property, G_TYPE_BOOLEAN, object, PROP_NAME_BLOCK_AUTOHIDE);
   g_free (property);
 
   /* show configure/about */
@@ -355,13 +400,13 @@ closebutton_plugin_construct (XfcePanelPlugin *panel_plugin)
   xfce_panel_plugin_set_small (panel_plugin, TRUE);
 
   /* monitor screen changes */
-  g_signal_connect (G_OBJECT (panel_plugin), "screen-changed",
+  g_signal_connect (object, "screen-changed",
       G_CALLBACK (closebutton_plugin_screen_changed), NULL);
 
   /* initialize the screen */
   closebutton_plugin_screen_changed (GTK_WIDGET (panel_plugin), NULL);
 
-  gtk_widget_show (plugin->button);
+  gtk_widget_show (XFCE_CLOSEBUTTON_PLUGIN (panel_plugin)->button);
 }
 
 
