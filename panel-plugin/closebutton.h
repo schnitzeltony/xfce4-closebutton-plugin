@@ -22,7 +22,6 @@
 #include <gtk/gtk.h>
 
 #define PROP_NAME_THEME                 "theme"
-#define PROP_NAME_COLLAPSE_NO_WINDOW    "collapse-no-window"
 #define PROP_NAME_BLOCK_AUTOHIDE        "block-autohide"
 
 #define plugin_warn(plugin, text, ...) \
