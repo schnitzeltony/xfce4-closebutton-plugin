@@ -1,3 +1,5 @@
-All files in this directory were taken firefox mozilla-release/toolkit/themes.
-
-For more information, see: http://www.mozilla.org/foundation/licensing.html
+aero/default/octo:
+	All files in these directories were taken firefox mozilla-release/toolkit/themes.
+	For more information, see: http://www.mozilla.org/foundation/licensing.html
+oxygen:
+	TODO

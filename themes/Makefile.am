@@ -3,4 +3,5 @@
 SUBDIRS = \
 	aero \
 	default \
-	octo
+	octo \
+	oxygen
