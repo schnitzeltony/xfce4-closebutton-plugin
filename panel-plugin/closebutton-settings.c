@@ -197,7 +197,7 @@ closebutton_plugin_configure_plugin (XfcePanelPlugin *panel_plugin)
   GDir              *themedir;
   gchar             *property, *themename;
   guint             i;
-  const gchar      *names_bind_standard[] = { PROP_NAME_BLOCK_AUTOHIDE };
+  /*const gchar      *names_bind_standard[] = { PROP_NAME_FOO };*/
 
   /* setup the dialog */
   if (xfce_titled_dialog_get_type () == 0)
@@ -235,13 +235,13 @@ closebutton_plugin_configure_plugin (XfcePanelPlugin *panel_plugin)
           G_CALLBACK (closebutton_plugin_combo_changed), panel_plugin);
     }
   /* standard widgets/properties exchange data by mutual bindings */
-  for (i = 0; i < G_N_ELEMENTS (names_bind_standard); i++)
+  /*for (i = 0; i < G_N_ELEMENTS (names_bind_standard); i++)
     {
       widget = gtk_builder_get_object (builder, names_bind_standard[i]);
       g_return_if_fail (GTK_IS_WIDGET (widget));
       exo_mutual_binding_new (G_OBJECT (panel_plugin), names_bind_standard[i],
                               G_OBJECT (widget), "active");
-    }
+    }*/
 
   gtk_widget_show (GTK_WIDGET (dialog));
 }

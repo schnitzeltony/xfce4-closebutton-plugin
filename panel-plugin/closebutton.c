@@ -47,7 +47,6 @@ struct _CloseButtonPlugin
 
   /* properties */
   gchar              *theme_or_stock_id;
-  gboolean            block_autohide;
 
   /* inernal data */
   GdkPixbuf      *pixbuf;
@@ -57,7 +56,6 @@ enum
 {
   PROP_0,
   PROP_THEME,
-  PROP_BLOCK_AUTOHIDE,
 };
 
 #define DEFAULT_THEME "Default"
@@ -113,12 +111,6 @@ closebutton_plugin_class_init (CloseButtonPluginClass *klass)
                                                         NULL, NULL,
                                                         DEFAULT_THEME,
                                                         EXO_PARAM_READWRITE));
-  g_object_class_install_property (gobject_class,
-                                   PROP_BLOCK_AUTOHIDE,
-                                   g_param_spec_boolean (PROP_NAME_BLOCK_AUTOHIDE,
-                                                         NULL, NULL,
-                                                         FALSE,
-                                                         EXO_PARAM_READWRITE));
 }
 
 
@@ -127,7 +119,6 @@ static void
 closebutton_plugin_init (CloseButtonPlugin *plugin)
 {
   plugin->theme_or_stock_id = g_strdup (DEFAULT_THEME);
-  plugin->block_autohide = FALSE;
   plugin->pixbuf = NULL;
 
   plugin->button = xfce_panel_create_button ();
@@ -218,8 +209,6 @@ closebutton_plugin_set_icon (CloseButtonPlugin *plugin, gboolean force_reload)
       /* no icon is shown right now */
       xfce_panel_image_set_from_source (icon, NULL);
 
-  xfce_panel_plugin_block_autohide (panel_plugin,
-                                    plugin->block_autohide && window != NULL);
   return window;
 }
 
@@ -238,9 +227,6 @@ closebutton_plugin_get_property (GObject    *object,
     case PROP_THEME:
       g_value_set_string (value, exo_str_is_empty (plugin->theme_or_stock_id) ?
           DEFAULT_THEME : plugin->theme_or_stock_id);
-      break;
-    case PROP_BLOCK_AUTOHIDE:
-      g_value_set_boolean (value, plugin->block_autohide);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -272,11 +258,6 @@ closebutton_plugin_set_property (GObject      *object,
       needs_redraw = icon_changed = 
           g_strcmp0 (str_old, plugin->theme_or_stock_id) != 0;
       g_free (str_old);
-      break;
-    case PROP_BLOCK_AUTOHIDE:
-      bool_old = plugin->block_autohide;
-      plugin->block_autohide = g_value_get_boolean (value);
-      needs_redraw = bool_old != plugin->block_autohide;
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -371,9 +352,6 @@ closebutton_plugin_construct (XfcePanelPlugin *panel_plugin)
   g_return_if_fail (XFCONF_IS_CHANNEL (channel));
   property = g_strconcat (xfce_panel_plugin_get_property_base (panel_plugin), "/" PROP_NAME_THEME, NULL);
   xfconf_g_property_bind (channel, property, G_TYPE_STRING, object, PROP_NAME_THEME);
-  g_free (property);
-  property = g_strconcat (xfce_panel_plugin_get_property_base (panel_plugin), "/" PROP_NAME_BLOCK_AUTOHIDE, NULL);
-  xfconf_g_property_bind (channel, property, G_TYPE_BOOLEAN, object, PROP_NAME_BLOCK_AUTOHIDE);
   g_free (property);
 
   /* show configure/about */
