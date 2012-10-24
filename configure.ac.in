@@ -114,6 +114,7 @@ themes/Makefile
 themes/aero/Makefile
 themes/default/Makefile
 themes/octo/Makefile
+themes/oxygen/Makefile
 panel-plugin/Makefile
 po/Makefile.in
 ])
