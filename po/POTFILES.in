@@ -1,4 +1,6 @@
 panel-plugin/closebutton.c
 panel-plugin/closebutton.h
+panel-plugin/closebutton-settings.c
+panel-plugin/closebutton-settings.h
 panel-plugin/closebutton-dialog.glade
 panel-plugin/closebutton.desktop.in
