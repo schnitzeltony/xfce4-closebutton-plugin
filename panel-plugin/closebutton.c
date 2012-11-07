@@ -320,9 +320,8 @@ closebutton_plugin_active_window_changed (WnckScreen        *screen,
   window = closebutton_plugin_set_icon (plugin, FALSE);
   if (window != NULL)
     {
-      tooltip = g_strdup_printf("%s \"%s\"",
-                                 _("Close"),
-                                 wnck_window_get_name (window));
+      tooltip = g_strdup_printf(_("Close \"%s\""),
+                                wnck_window_get_name (window));
       gtk_widget_set_tooltip_text (GTK_WIDGET (icon),
                                    tooltip);
       g_free(tooltip);
