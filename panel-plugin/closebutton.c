@@ -167,8 +167,8 @@ closebutton_plugin_set_icon (CloseButtonPlugin *plugin, gboolean force_reload)
   XfcePanelPlugin   *panel_plugin = XFCE_PANEL_PLUGIN (plugin);
   XfcePanelImage    *icon = XFCE_PANEL_IMAGE (plugin->icon);
 
-  g_return_if_fail (XFCE_IS_PANEL_IMAGE (icon));
-  g_return_if_fail (XFCE_IS_CLOSEBUTTON_PLUGIN (plugin));
+  g_return_val_if_fail (XFCE_IS_PANEL_IMAGE (icon), 0);
+  g_return_val_if_fail (XFCE_IS_CLOSEBUTTON_PLUGIN (plugin), 0);
 
   window = closebutton_plugin_get_effective_window (plugin);
   if (window != NULL)
@@ -404,7 +404,7 @@ closebutton_plugin_size_changed (XfcePanelPlugin *panel_plugin,
                                  gint             size)
 {
   CloseButtonPlugin *plugin = XFCE_CLOSEBUTTON_PLUGIN (panel_plugin);
-  g_return_if_fail (XFCE_IS_CLOSEBUTTON_PLUGIN (plugin));
+  g_return_val_if_fail (XFCE_IS_CLOSEBUTTON_PLUGIN (plugin), 0);
 
 #if LIBXFCE4PANEL_CHECK_VERSION(4,9,0)
   size /= xfce_panel_plugin_get_nrows (panel_plugin);

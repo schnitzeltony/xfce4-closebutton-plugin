@@ -60,7 +60,7 @@ closebutton_builder_new (XfcePanelPlugin  *panel_plugin,
   GtkBuilder  *builder;
   GObject     *dialog, *button;
 
-  g_return_if_fail (XFCE_IS_PANEL_PLUGIN (panel_plugin));
+  g_return_val_if_fail (XFCE_IS_PANEL_PLUGIN (panel_plugin), 0);
 
   builder = gtk_builder_new ();
   if (gtk_builder_add_from_string (builder, buffer, length, &error))
