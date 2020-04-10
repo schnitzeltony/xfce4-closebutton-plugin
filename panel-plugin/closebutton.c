@@ -459,7 +459,7 @@ closebutton_plugin_about (XfcePanelPlugin    *panel_plugin)
       "version", PACKAGE_VERSION,
       "program-name", PACKAGE_NAME,
       "comments", _("A plugin implementing closebutton for application with focus"),
-      "website", "http://goodies.xfce.org/projects/panel-plugins/xfce4-closebutton-plugin",
+      "website", "https://github.com/schnitzeltony/xfce4-closebutton-plugin",
       "copyright", _("Copyright (c) 2012\n"),
       "authors", auth, NULL);
 
