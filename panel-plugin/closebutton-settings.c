@@ -35,11 +35,11 @@ struct gtk_theme_entry
 };
 
 static const struct gtk_theme_entry gtk_theme_entries[] = {
-  { GTK_STOCK_CLOSE,        N_("Standard close icon") },
-  { GTK_STOCK_CANCEL,       N_("Standard cancel icon") },
-  { GTK_STOCK_DIALOG_ERROR, N_("Standard error icon") },
-  { GTK_STOCK_NO,           N_("Standard no icon") },
-  { GTK_STOCK_QUIT,         N_("Standard quit icon") },
+  { "window-close",      N_("Standard close icon") },
+  { "edit-delete",       N_("Standard delete icon") },
+  { "dialog-error",      N_("Standard error icon") },
+  { "application-exit",  N_("Standard quit icon") },
+  { "process-stop",      N_("Standard stop icon") },
 };
 
 
@@ -108,7 +108,7 @@ closebutton_builder_new (XfcePanelPlugin  *panel_plugin,
  * matches 'property', the entry is selected.
  */
 static void
-closebutton_plugin_combo_addselect (GtkComboBox *combo, gchar *newentry,
+closebutton_plugin_combo_addselect (GtkComboBoxText *combo, gchar *newentry,
                                     gint *position, gchar *property)
 {
   gchar           *compare;
@@ -118,7 +118,7 @@ closebutton_plugin_combo_addselect (GtkComboBox *combo, gchar *newentry,
   g_return_if_fail (position != NULL);
   g_return_if_fail (property != NULL);
 
-  gtk_combo_box_insert_text (combo, *position, newentry);
+  gtk_combo_box_text_insert (combo, *position, NULL, newentry);
   /* stock icons */
   if (*position < G_N_ELEMENTS(gtk_theme_entries))
       compare = gtk_theme_entries[*position].stockid;
@@ -127,7 +127,7 @@ closebutton_plugin_combo_addselect (GtkComboBox *combo, gchar *newentry,
       compare = newentry;
   /* found? -> select */
   if (g_strcmp0 (compare, property) == 0)
-      gtk_combo_box_set_active (combo, *position);
+      gtk_combo_box_set_active (GTK_COMBO_BOX (combo), *position);
   /* prepare next */
   (*position)++;
 }
@@ -162,13 +162,13 @@ closebutton_plugin_find_in_stock (gchar *find, gboolean for_display)
  * Combobox change signal handler
  */
 static void
-closebutton_plugin_combo_changed(GtkComboBox *combo,
+closebutton_plugin_combo_changed(GtkComboBoxText *combo,
                                  XfcePanelPlugin *panel_plugin)
 {
   gchar            *selection, *property;
   gint              stockindex;
 
-  selection = gtk_combo_box_get_active_text (combo);
+  selection = gtk_combo_box_text_get_active_text (combo);
   if (G_LIKELY (selection != NULL))
     {
       /* found in stock table: store id */
@@ -193,7 +193,7 @@ closebutton_plugin_configure_plugin (XfcePanelPlugin *panel_plugin)
   GtkBuilder        *builder;
   GObject           *dialog, *widget;
   gint              stockindex, comboposition;
-  GtkComboBox       *combo;
+  GtkComboBoxText   *combo;
   GDir              *themedir;
   gchar             *property, *themename;
   guint             i;
@@ -211,7 +211,7 @@ closebutton_plugin_configure_plugin (XfcePanelPlugin *panel_plugin)
                 PROP_NAME_THEME, &property,
                 NULL);
   /* prepare combo: fill/select/signal */
-  combo = GTK_COMBO_BOX (gtk_builder_get_object (builder, "theme"));
+  combo = GTK_COMBO_BOX_TEXT (gtk_builder_get_object (builder, "theme"));
   if (G_LIKELY (combo != NULL))
     {
       comboposition = 0;
