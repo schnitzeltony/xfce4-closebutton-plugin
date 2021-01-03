@@ -8,9 +8,9 @@ dnl
 dnl ***************************
 dnl *** Version information ***
 dnl ***************************
-m4_define([closebutton_version_major], [0])
-m4_define([closebutton_version_minor], [0])
-m4_define([closebutton_version_micro], [1])
+m4_define([closebutton_version_major], [4])
+m4_define([closebutton_version_minor], [16])
+m4_define([closebutton_version_micro], [0])
 m4_define([closebutton_version_nano],  []) dnl leave this empty to have no nano version
 m4_define([closebutton_version_build], [@REVISION@])
 m4_define([closebutton_version_tag], [git])
@@ -19,8 +19,7 @@ m4_define([closebutton_version], [closebutton_version_major().closebutton_versio
 dnl ***************************
 dnl *** Initialize autoconf ***
 dnl ***************************
-AC_COPYRIGHT([Copyright (C) 2012
-        The Xfce development team. All rights reserved.])
+AC_COPYRIGHT([Copyright (C) 2021 A. Mueller ])
 AC_INIT([xfce4-closebutton-plugin], [closebutton_version], [http://bugzilla.xfce.org/], [xfce4-closebutton-plugin])
 AC_PREREQ([2.50])
 AC_REVISION([xfce4_panel_version_build])
