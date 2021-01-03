@@ -71,6 +71,6 @@ DISTCLEANFILES += \
 	$(libclosebutton_built_sources)
 
 closebutton-dialog_ui.h: closebutton-dialog.glade
-	$(AM_V_GEN) exo-csource --static --strip-comments --strip-content --name=closebutton_dialog_ui $< >$@
+	$(AM_V_GEN) xdt-csource --static --strip-comments --strip-content --name=closebutton_dialog_ui $< >$@
 endif
 
